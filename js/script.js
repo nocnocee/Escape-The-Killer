@@ -234,9 +234,20 @@ function animate() {
         }
     }
 
-    clues.forEach((clues) => {
-        clues.draw()
-    })
+    for (let i = clues.length - 1; 0 <= i; i--) {
+        const clue = clues[i]
+        clue.draw()
+
+        if (Math.hypot(
+            clue.position.x - player.position.x, 
+            clue.position.y - player.position.y
+            ) 
+            < clue.radius + player.radius
+        ) {
+            console.log('found!')
+            clues.splice(i, 1)
+        }
+    }
 
     boundaries.forEach((Boundary) => {
         Boundary.draw()
