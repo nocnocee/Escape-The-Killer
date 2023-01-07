@@ -26,11 +26,12 @@ class Player {
         this.position = position
         this.velocity = velocity
         this.radius = 15
+        
     }
     draw() {
         c.beginPath()
         c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        c.fillStyle = 'yellow'
+        c.fillStyle = 'orange'
         c.fill()
         c.closePath()
     }
@@ -73,30 +74,14 @@ const keys = {
 let lastKey = ''
 
 const map = [
-    ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
-    ['-', '-', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-', ' ', '-', '-', ' ', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', '-', ' ', '-', '-', '-', ' ', '-', '-', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-',],
-    [' ', ' ', ' ', ' ', ' ', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', ' ', '-', '-', ' ', '-',],
-    ['-', '-', '-', ' ', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', '-', ' ', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', '-', ' ', ' ', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', '-', '-', ' ', '-', ' ', '-', '-', '-', '-',],
-    ['-', '-', ' ', '-', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', ' ', '-', '-', ' ', '-', ' ', '-', '-', '-', '-',],
-    ['-', ' ', ' ', '-', '-', '-', '-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', ' ', '-', '-', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', ' ', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', '-', '-', '-', ' ', '-', '-', ' ', ' ', ' ', ' ', '-', ' ', '-',],
-    ['-', '-', '-', '-', '-', ' ', ' ', ' ', '-', '-', ' ', '-', '-', '-', '-', '-', ' ', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', '-', '-', '-', ' ', '-', ' ', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', '-', ' ', '-', ' ', '-', '-', ' ', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', '-', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', '-', '-', ' ', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', '-', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', '-', ' ', '-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', '-', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', '-', '-', ' ', ' ', '-', '-', '-', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', '-', '-', '-', '-', '-', '-', '-', ' ', '-', '-', '-', '-', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', ' ', '-', '-', '-', '-', '-', '-', '-', '-', ' ', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', ' ', '-', '-', '-', ' ', '-', '-', '-', ' ', '-', '-', ' ', ' ', ' ', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', '-', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', ' ', '-', '-', '-', ' ', '-', '-', '-', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', '-', ' ', '-', '-', ' ', '-',],
-    ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
+    ['-', '-', '-', '-', '-', '-', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', '-', '-', '-', '-', '-', '-',],
+    
 ]
 
 map.forEach((row, i) => {
@@ -114,27 +99,125 @@ map.forEach((row, i) => {
         }
     })
 })
+function circleCollidesWithRectangle({
+    circle,
+    rectangle
+}) {
+    return ( 
+        circle.position.y - circle.radius + circle.velocity.y <= rectangle.position.y + rectangle.height && 
+        circle.position.x + circle.radius + circle.velocity.x >= rectangle.position.x && 
+        circle.position.y + circle.radius + circle.velocity.y >= rectangle.position.y && 
+        circle.position.x - circle.radius + circle.velocity.x <= rectangle.position.x + rectangle.width
+    )
+}
 
 function animate() {
     requestAnimationFrame(animate)
     c.clearRect(0, 0, canvas.width, canvas.height)
-    boundaries.forEach(Boundary => {
+
+    if (keys.w.pressed && lastKey === 'w') {
+        for (let i = 0; i < boundaries.length; i++) {
+            const Boundary = boundaries[i]
+            if (
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...player, 
+                        velocity: {
+                            x: 0,
+                            y: -5
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            ) {
+                player.velocity.y = 0
+                break
+            }   else {
+                player.velocity.y = -5
+            }
+        }
+    } else if (keys.a.pressed && lastKey === 'a') {
+        for (let i = 0; i < boundaries.length; i++) {
+            const Boundary = boundaries[i]
+            if (
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...player, 
+                        velocity: {
+                            x: -5,
+                            y: 0
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            ) {
+                player.velocity.x = 0
+                break
+            }   else {
+                player.velocity.x = -5
+            }
+        }
+    } else if (keys.s.pressed && lastKey === 's') {
+        for (let i = 0; i < boundaries.length; i++) {
+            const Boundary = boundaries[i]
+            if (
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...player, 
+                        velocity: {
+                            x: 0,
+                            y: 5
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            ) {
+                player.velocity.y = 0
+                break
+            }   else {
+                player.velocity.y = 5
+            }
+        }
+    } else if (keys.d.pressed && lastKey === 'd') {
+        for (let i = 0; i < boundaries.length; i++) {
+            const Boundary = boundaries[i]
+            if (
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...player, 
+                        velocity: {
+                            x: 5,
+                            y: 0
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            ) {
+                player.velocity.x = 0
+                break
+            }   else {
+                player.velocity.x = 5
+            }
+        }
+    }
+
+    boundaries.forEach((Boundary) => {
         Boundary.draw()
+
+        if (
+            circleCollidesWithRectangle({
+                circle: player,
+                rectangle: Boundary
+            })
+        ) {
+        player.velocity.x = 0
+        player.velocity.y = 0
+        }
     })
     
     player.update() 
-    player.velocity.y = 0
-    player.velocity.x = 0
-
-    if (keys.w.pressed && lastKey === 'w') {
-        player.velocity.y = -5
-    } else if (keys.a.pressed && lastKey === 'a') {
-        player.velocity.x = -5
-    } else if (keys.s.pressed && lastKey === 's') {
-        player.velocity.y = 5
-    } else if (keys.d.pressed && lastKey === 'd') {
-        player.velocity.x = 5
-    }
+    // player.velocity.y = 0
+    // player.velocity.x = 0
 }
 
 animate()
@@ -143,21 +226,21 @@ animate()
 addEventListener('keydown', ({ key }) => {
     switch (key) {
         case 'w':
-        keys.w.pressed = true
-        lastKey = 'w'
-        break
+            keys.w.pressed = true
+            lastKey = 'w'
+            break
         case 'a':
-        keys.a.pressed = true
-        lastKey = 'a'
-        break
+            keys.a.pressed = true
+            lastKey = 'a'
+            break
         case 's':
-        keys.s.pressed = true
-        lastKey = 's'
-        break
+            keys.s.pressed = true
+            lastKey = 's'
+            break
         case 'd':
-        keys.d.pressed = true
-        lastKey = 'd'
-        break
+            keys.d.pressed = true
+            lastKey = 'd'
+            break
     }
     
     console.log(keys.d.pressed)
@@ -168,15 +251,19 @@ addEventListener('keyup', ({ key }) => {
     switch (key) {
         case 'w':
         keys.w.pressed = false
+
         break
         case 'a':
         keys.a.pressed = false
+
         break
         case 's':
         keys.s.pressed = false
+
         break
         case 'd':
         keys.d.pressed = false
+
         break
     }
 
