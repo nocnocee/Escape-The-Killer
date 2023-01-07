@@ -1,6 +1,8 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
-// console.log(c) <- used console.log to check if canvas was working and linked 
+
+const sscoreElement = document.querySelector('#scoreElement')
+
 const veloConst = 2
 
 canvas.width = innerWidth
@@ -88,6 +90,7 @@ const keys = {
 }
 
 let lastKey = ''
+let score = 0
 
 const map = [
     ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
@@ -234,6 +237,7 @@ function animate() {
         }
     }
 
+    // touch clues here
     for (let i = clues.length - 1; 0 <= i; i--) {
         const clue = clues[i]
         clue.draw()
@@ -246,6 +250,8 @@ function animate() {
         ) {
             console.log('found!')
             clues.splice(i, 1)
+            score += 1
+            sscoreElement.innerHTML =score
         }
     }
 
