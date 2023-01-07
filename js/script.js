@@ -1,6 +1,7 @@
 const canvas = document.querySelector('canvas')
 const c = canvas.getContext('2d')
 // console.log(c) <- used console.log to check if canvas was working and linked 
+const veloConst = 2
 
 canvas.width = innerWidth
 canvas.height = innerHeight
@@ -8,7 +9,7 @@ canvas.height = innerHeight
 class Boundary {
     static width = 40
     static height = 40
-    constructor({position}) {
+    constructor({position, image}) {
         this.position = position
         this.width = 40
         this.height = 40
@@ -16,8 +17,23 @@ class Boundary {
 
     draw() {
     // drawing out boundaries to determine what it looks like
-        c.fillStyle = 'grey'
+        c.fillStyle = '#444444'
         c.fillRect(this.position.x, this.position.y, this.width, this.height)
+    }
+}
+
+class Clues {
+    constructor({position}) {
+        this.position = position
+        this.radius = 5
+        
+    }
+    draw() {
+        c.beginPath()
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = '#746ab0'
+        c.fill()
+        c.closePath()
     }
 }
 
@@ -31,7 +47,7 @@ class Player {
     draw() {
         c.beginPath()
         c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        c.fillStyle = 'orange'
+        c.fillStyle = '#f96209'
         c.fill()
         c.closePath()
     }
@@ -43,7 +59,7 @@ class Player {
     }
 }
 
-
+const clues = []
 const boundaries = []
 const player = new Player({
     position: {
@@ -74,13 +90,21 @@ const keys = {
 let lastKey = ''
 
 const map = [
-    ['-', '-', '-', '-', '-', '-', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', '-', '-', '-', '-', '-', '-',],
+    ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', '-', '-', '-', '-', '-', ' ', ' ', ' ', '-', '-', '-', '-', '-', '-',],
+    ['-', '-', '-', '-', '-', '-', ' ', '.', ' ', '-', '-', '-', '-', '-', '-',],
+    ['-', '-', '-', '-', '-', '-', ' ', ' ', ' ', '-', '-', '-', '-', '-', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
     
 ]
 
@@ -96,6 +120,15 @@ map.forEach((row, i) => {
                         }
                     }))
                 break
+            case '.':
+                clues.push(
+                    new Clues({
+                        position: {
+                            x: j * Boundary.width + Boundary.width /2,
+                            y: i * Boundary.height + Boundary.height /2 
+                        }
+                    })
+                )
         }
     })
 })
@@ -124,7 +157,7 @@ function animate() {
                         ...player, 
                         velocity: {
                             x: 0,
-                            y: -5
+                            y: veloConst * -1
                         }
                     },
                     rectangle: Boundary
@@ -133,7 +166,7 @@ function animate() {
                 player.velocity.y = 0
                 break
             }   else {
-                player.velocity.y = -5
+                player.velocity.y = veloConst * -1
             }
         }
     } else if (keys.a.pressed && lastKey === 'a') {
@@ -144,7 +177,7 @@ function animate() {
                     circle: {
                         ...player, 
                         velocity: {
-                            x: -5,
+                            x: veloConst * -1,
                             y: 0
                         }
                     },
@@ -154,7 +187,7 @@ function animate() {
                 player.velocity.x = 0
                 break
             }   else {
-                player.velocity.x = -5
+                player.velocity.x = veloConst * -1
             }
         }
     } else if (keys.s.pressed && lastKey === 's') {
@@ -166,7 +199,7 @@ function animate() {
                         ...player, 
                         velocity: {
                             x: 0,
-                            y: 5
+                            y: veloConst
                         }
                     },
                     rectangle: Boundary
@@ -175,7 +208,7 @@ function animate() {
                 player.velocity.y = 0
                 break
             }   else {
-                player.velocity.y = 5
+                player.velocity.y = veloConst
             }
         }
     } else if (keys.d.pressed && lastKey === 'd') {
@@ -186,7 +219,7 @@ function animate() {
                     circle: {
                         ...player, 
                         velocity: {
-                            x: 5,
+                            x: veloConst,
                             y: 0
                         }
                     },
@@ -196,10 +229,14 @@ function animate() {
                 player.velocity.x = 0
                 break
             }   else {
-                player.velocity.x = 5
+                player.velocity.x = veloConst
             }
         }
     }
+
+    clues.forEach((clues) => {
+        clues.draw()
+    })
 
     boundaries.forEach((Boundary) => {
         Boundary.draw()
@@ -216,8 +253,8 @@ function animate() {
     })
     
     player.update() 
-    // player.velocity.y = 0
-    // player.velocity.x = 0
+    player.velocity.y = 0
+    player.velocity.x = 0
 }
 
 animate()
