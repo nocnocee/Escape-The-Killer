@@ -5,6 +5,22 @@ const sscoreElement = document.querySelector('#scoreElement')
 
 const veloConst = 2
 const killerVelo = 2
+const hatchPosition = {
+    x: 3,
+    y: 7
+}
+const hatchPositionTwo = {
+    x: 7,
+    y: 3
+}
+const hatchPositionThree = {
+    x: 11,
+    y: 7
+}
+const hatchPositionFour = {
+    x: 7,
+    y: 11
+}
 
 canvas.width = innerWidth
 canvas.height = innerHeight
@@ -20,7 +36,7 @@ class Boundary {
 
     draw() {
     // drawing out boundaries to determine what it looks like
-        c.fillStyle = '#444444'
+        c.fillStyle = '#556b2f'
         c.fillRect(this.position.x, this.position.y, this.width, this.height)
     }
 }
@@ -34,7 +50,7 @@ class Clues {
     draw() {
         c.beginPath()
         c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        c.fillStyle = '#746ab0'
+        c.fillStyle = '#ffd700'
         c.fill()
         c.closePath()
     }
@@ -43,7 +59,7 @@ class Clues {
 class Hatch {
     constructor({position}) {
         this.position = position
-        this.radius = 10
+        this.radius = 20
         
     }
     draw() {
@@ -103,7 +119,7 @@ class Killer {
 
 const clues = []
 const hatches = []
-const boundaries = []
+var boundaries = []
 const killer = [
     new Killer({
         position: {
@@ -154,7 +170,7 @@ const map = [
     ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-',],
-    ['-', 'H', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', ' ', '-', ' ', ' ', '-',],
+    ['-', ' ', ' ', '-', ' ', ' ', ' ', '.', ' ', ' ', ' ', '-', ' ', 'H', '-',],
     ['-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
@@ -317,6 +333,26 @@ function animate() {
             clues.splice(i, 1)
             score += 1
             sscoreElement.innerHTML =score
+            
+            if (score >= 5) {
+                newBoundary = []
+                for (let i = 0; i < boundaries.length; i++) {
+                    theBoundary = boundaries[i]
+                    if (
+                        !(theBoundary.position.x == theBoundary.width * hatchPosition.x && 
+                        theBoundary.position.y == theBoundary.height * hatchPosition.y) 
+                        && !(theBoundary.position.x == theBoundary.width * hatchPositionTwo.x && 
+                        theBoundary.position.y == theBoundary.height * hatchPositionTwo.y) 
+                        && !(theBoundary.position.x == theBoundary.width * hatchPositionThree.x && 
+                        theBoundary.position.y == theBoundary.height * hatchPositionThree.y)
+                        && !(theBoundary.position.x == theBoundary.width * hatchPositionFour.x && 
+                        theBoundary.position.y == theBoundary.height * hatchPositionFour.y)
+                    )
+                        (newBoundary.push(theBoundary)
+                    )
+                }
+                boundaries = newBoundary
+            }
         }
     }
 
