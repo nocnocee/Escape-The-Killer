@@ -4,7 +4,7 @@ const c = canvas.getContext('2d')
 const sscoreElement = document.querySelector('#scoreElement')
 
 const veloConst = 2
-const killerVelo = 5
+const killerVelo = 2
 
 canvas.width = innerWidth
 canvas.height = innerHeight
@@ -44,13 +44,13 @@ class Player {
     constructor({position, velocity}) {
         this.position = position
         this.velocity = velocity
-        this.radius = 16
+        this.radius = 15
         
     }
     draw() {
         c.beginPath()
         c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        c.fillStyle = '#f96209'
+        c.fillStyle = '#7fff00'
         c.fill()
         c.closePath()
     }
@@ -66,7 +66,7 @@ class Killer {
     constructor({position, velocity, color = 'red'}) {
         this.position = position
         this.velocity = velocity
-        this.radius = 18
+        this.radius = 15
         this.color = color
         this.prevCollisions = []
         
@@ -91,7 +91,7 @@ const boundaries = []
 const killer = [
     new Killer({
         position: {
-            x: Boundary.width * 1 + Boundary.width /2,
+            x: Boundary.width * 12 + Boundary.width /2,
             y: Boundary.height + Boundary.height /2
         },
         velocity: {
@@ -132,19 +132,19 @@ let score = 0
 const map = [
 
     ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '-', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', '-', '.', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', '.', ' ', ' ', '-', '-', '-', ' ', ' ', '.', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-',],
+    ['-', ' ', ' ', '-', ' ', ' ', ' ', '.', ' ', ' ', ' ', '-', ' ', ' ', '-',],
+    ['-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', '.', ' ', ' ', '-', '-', '-', ' ', ' ', '.', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
     
 ]
@@ -173,20 +173,21 @@ map.forEach((row, i) => {
         }
     })
 })
-function circleCollidesWithRectangle({
-    circle,
-    rectangle
-}) {
+function circleCollidesWithRectangle({ circle, rectangle}) {
+    const padding = Boundary.width /2 - circle.radius - 1
     return ( 
-        circle.position.y - circle.radius + circle.velocity.y <= rectangle.position.y + rectangle.height && 
-        circle.position.x + circle.radius + circle.velocity.x >= rectangle.position.x && 
-        circle.position.y + circle.radius + circle.velocity.y >= rectangle.position.y && 
-        circle.position.x - circle.radius + circle.velocity.x <= rectangle.position.x + rectangle.width
+        circle.position.y - circle.radius + circle.velocity.y <= rectangle.position.y + rectangle.height + padding && 
+        circle.position.x + circle.radius + circle.velocity.x >= rectangle.position.x - padding && 
+        circle.position.y + circle.radius + circle.velocity.y >= rectangle.position.y - padding && 
+        circle.position.x - circle.radius + circle.velocity.x <= rectangle.position.x + rectangle.width + padding
     )
 }
 
+let animationId
 function animate() {
-    requestAnimationFrame(animate)
+    animationId = requestAnimationFrame(animate)
+    console.log(animationId)
+    
     c.clearRect(0, 0, canvas.width, canvas.height)
 
     if (keys.w.pressed && lastKey === 'w') {
@@ -313,6 +314,16 @@ function animate() {
 
     killer.forEach((theKiller) => {
         theKiller.update()
+
+        if (Math.hypot(
+            theKiller.position.x - player.position.x, 
+            theKiller.position.y - player.position.y
+            ) 
+            < theKiller.radius + player.radius
+        ) {
+            cancelAnimationFrame(animationId)
+            console.log('You Died')
+        }
 
         const collisions = []
         boundaries.forEach((Boundary) => {
@@ -463,18 +474,26 @@ addEventListener('keyup', ({ key }) => {
     switch (key) {
         case 'w':
         keys.w.pressed = false
+        player.velocity.y = 0
+        player.velocity.x = 0
 
         break
         case 'a':
         keys.a.pressed = false
+        player.velocity.y = 0
+        player.velocity.x = 0
 
         break
         case 's':
         keys.s.pressed = false
+        player.velocity.y = 0
+        player.velocity.x = 0
 
         break
         case 'd':
         keys.d.pressed = false
+        player.velocity.y = 0
+        player.velocity.x = 0
 
         break
     }
