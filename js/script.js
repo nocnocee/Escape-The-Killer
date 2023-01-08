@@ -65,11 +65,12 @@ class Hatch {
     draw() {
         c.beginPath()
         c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
-        c.fillStyle = '#FFFFFF'
+        c.fillStyle = '#000000'
         c.fill()
         c.closePath()
     }
 }
+
 
 class Player {
     constructor({position, velocity}) {
@@ -123,8 +124,8 @@ var boundaries = []
 const killer = [
     new Killer({
         position: {
-            x: Boundary.width * 12 + Boundary.width /2,
-            y: Boundary.height + Boundary.height /2
+            x: Boundary.width * 1 + Boundary.width /2,
+            y: Boundary.height * 13 + Boundary.height /2
         },
         velocity: {
             x: killerVelo,
@@ -335,6 +336,7 @@ function animate() {
             sscoreElement.innerHTML =score
             
             if (score >= 5) {
+
                 newBoundary = []
                 for (let i = 0; i < boundaries.length; i++) {
                     theBoundary = boundaries[i]
