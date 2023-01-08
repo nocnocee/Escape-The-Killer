@@ -40,6 +40,21 @@ class Clues {
     }
 }
 
+class Hatch {
+    constructor({position}) {
+        this.position = position
+        this.radius = 10
+        
+    }
+    draw() {
+        c.beginPath()
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = '#FFFFFF'
+        c.fill()
+        c.closePath()
+    }
+}
+
 class Player {
     constructor({position, velocity}) {
         this.position = position
@@ -87,6 +102,7 @@ class Killer {
 }
 
 const clues = []
+const hatches = []
 const boundaries = []
 const killer = [
     new Killer({
@@ -138,7 +154,7 @@ const map = [
     ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-',],
-    ['-', ' ', ' ', '-', ' ', ' ', ' ', '.', ' ', ' ', ' ', '-', ' ', ' ', '-',],
+    ['-', 'H', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', ' ', '-', ' ', ' ', '-',],
     ['-', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
@@ -164,6 +180,16 @@ map.forEach((row, i) => {
             case '.':
                 clues.push(
                     new Clues({
+                        position: {
+                            x: j * Boundary.width + Boundary.width /2,
+                            y: i * Boundary.height + Boundary.height /2 
+                        }
+                    })
+                )
+                break
+            case 'H':
+                hatches.push(
+                    new Hatch({
                         position: {
                             x: j * Boundary.width + Boundary.width /2,
                             y: i * Boundary.height + Boundary.height /2 
@@ -308,6 +334,35 @@ function animate() {
         }
     })
     
+    for (let i = hatches.length - 1; 0 <= i; i--) {
+        const hatch = hatches[i]
+        hatch.draw()
+
+        if (Math.hypot(
+            hatch.position.x - player.position.x, 
+            hatch.position.y - player.position.y
+            ) 
+            < hatch.radius + player.radius
+        ) {
+            cancelAnimationFrame(animationId)
+            console.log('You Escaped!')
+        }
+    }
+
+    boundaries.forEach((Boundary) => {
+        Boundary.draw()
+
+        if (
+            circleCollidesWithRectangle({
+                circle: player,
+                rectangle: Boundary
+            })
+        ) {
+        player.velocity.x = 0
+        player.velocity.y = 0
+        }
+    })
+
     player.update() 
     // player.velocity.y = 0
     // player.velocity.x = 0
