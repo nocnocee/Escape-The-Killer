@@ -4,6 +4,7 @@ const c = canvas.getContext('2d')
 const sscoreElement = document.querySelector('#scoreElement')
 
 const veloConst = 2
+const killerVelo = 5
 
 canvas.width = innerWidth
 canvas.height = innerHeight
@@ -11,7 +12,7 @@ canvas.height = innerHeight
 class Boundary {
     static width = 40
     static height = 40
-    constructor({position, image}) {
+    constructor({position}) {
         this.position = position
         this.width = 40
         this.height = 40
@@ -43,7 +44,7 @@ class Player {
     constructor({position, velocity}) {
         this.position = position
         this.velocity = velocity
-        this.radius = 15
+        this.radius = 16
         
     }
     draw() {
@@ -61,8 +62,44 @@ class Player {
     }
 }
 
+class Killer {
+    constructor({position, velocity, color = 'red'}) {
+        this.position = position
+        this.velocity = velocity
+        this.radius = 18
+        this.color = color
+        this.prevCollisions = []
+        
+    }
+    draw() {
+        c.beginPath()
+        c.arc(this.position.x, this.position.y, this.radius, 0, Math.PI * 2)
+        c.fillStyle = this.color
+        c.fill()
+        c.closePath()
+    }
+
+    update() {
+        this.draw()
+        this.position.x += this.velocity.x
+        this.position.y += this.velocity.y
+    }
+}
+
 const clues = []
 const boundaries = []
+const killer = [
+    new Killer({
+        position: {
+            x: Boundary.width * 1 + Boundary.width /2,
+            y: Boundary.height + Boundary.height /2
+        },
+        velocity: {
+            x: killerVelo,
+            y: 0
+        }
+    })
+]
 const player = new Player({
     position: {
         x: Boundary.width + Boundary.width /2,
@@ -93,20 +130,21 @@ let lastKey = ''
 let score = 0
 
 const map = [
+
     ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
     ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', '-', '-', '-', '-', '-', ' ', ' ', ' ', '-', '-', '-', '-', '-', '-',],
-    ['-', '-', '-', '-', '-', '-', ' ', '.', ' ', '-', '-', '-', '-', '-', '-',],
-    ['-', '-', '-', '-', '-', '-', ' ', ' ', ' ', '-', '-', '-', '-', '-', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
-    ['-', ' ', '-', ' ', '-', ' ', ' ', ' ', ' ', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', '-',],
+    ['-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', '-', ' ', '-',],
     ['-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-', ' ', '-', ' ', '-',],
-    ['-', ' ', ' ', ' ', ' ', ' ', '-', '-', '-', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', '-', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', '-', '.', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', '.', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '.', ' ', ' ', '-',],
+    ['-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-', ' ', '-',],
+    ['-', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', '-',],
     ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
     
 ]
@@ -270,8 +308,128 @@ function animate() {
     })
     
     player.update() 
-    player.velocity.y = 0
-    player.velocity.x = 0
+    // player.velocity.y = 0
+    // player.velocity.x = 0
+
+    killer.forEach((theKiller) => {
+        theKiller.update()
+
+        const collisions = []
+        boundaries.forEach((Boundary) => {
+            if (
+                !collisions.includes('right') &&
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...theKiller, 
+                        velocity: {
+                            x: killerVelo,
+                            y: 0
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            )   {
+                collisions.push('right')
+            }
+
+            if (
+                !collisions.includes('left') &&
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...theKiller, 
+                        velocity: {
+                            x: killerVelo * -1,
+                            y: 0
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            )   {
+                collisions.push('left')
+            }
+
+            if (
+                !collisions.includes('up') &&
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...theKiller, 
+                        velocity: {
+                            x: 0,
+                            y: killerVelo * -1
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            )   {
+                collisions.push('up')
+            }
+
+            if (
+                !collisions.includes('down') &&
+                circleCollidesWithRectangle({
+                    circle: {
+                        ...theKiller, 
+                        velocity: {
+                            x: 0,
+                            y: killerVelo
+                        }
+                    },
+                    rectangle: Boundary
+                })
+            )   {
+                collisions.push('down')
+            }
+        })
+
+        if (collisions.length > theKiller.prevCollisions.length)
+        theKiller.prevCollisions = collisions
+
+        if (JSON.stringify(collisions) !== JSON.stringify(theKiller.prevCollisions)) {
+            // console.log('gogo')
+            
+            if (theKiller.velocity.x > 0) theKiller.prevCollisions.push('right')
+            else if (theKiller.velocity.x < 0) theKiller.prevCollisions.push('left')
+            else if (theKiller.velocity.y < 0) theKiller.prevCollisions.push('up')
+            else if (theKiller.velocity.y > 0) theKiller.prevCollisions.push('down')
+            
+            console.log(collisions)
+            console.log(theKiller.prevCollisions)
+
+            const pathways = theKiller.prevCollisions.filter((collision) => {
+                return !collisions.includes(collision)
+            })
+            console.log({ pathways })
+
+            const direction = pathways[Math.floor(Math.random() * pathways.length)]
+
+            console.log({direction})
+
+            switch (direction) {
+                case 'down':
+                    theKiller.velocity.y = killerVelo
+                    theKiller.velocity.x = 0
+                    break
+
+                case 'up':
+                    theKiller.velocity.y = killerVelo * -1
+                    theKiller.velocity.x = 0
+                    break
+
+                case 'right':
+                    theKiller.velocity.y = 0
+                    theKiller.velocity.x = killerVelo
+                    break
+
+                case 'left':
+                    theKiller.velocity.y = 0
+                    theKiller.velocity.x = killerVelo * -1
+                    break
+            }
+
+            theKiller.prevCollisions = []
+        }
+        // console.log(collisions)
+    })
 }
 
 animate()
