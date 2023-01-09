@@ -405,6 +405,7 @@ function animate() {
             cancelAnimationFrame(animationId)
             // title.innerHTML = `You Escaped!!!`
             console.log('You Escaped!')
+            alert('You Escaped!')
         }
     }
 
@@ -438,6 +439,7 @@ function animate() {
             cancelAnimationFrame(animationId)
             // title.innerHTML = `You Died...`
             console.log('You Died')
+            alert('You Died')
         }
 
         const collisions = []
