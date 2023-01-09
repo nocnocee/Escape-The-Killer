@@ -4,17 +4,19 @@ body{
 }
 
 header{
-    color: rgb(100, 64, 128);
+    color: rgb(255, 255, 255);
     text-align: left;
-    font-size: 200px;
+    font-size: 100px;
     font-family: 'Jolly Lodger', cursive;
 
 }
 
 h1{
+    font-size: x-large;
     text-align: left;
     font-family: 'Nosifer', cursive;
-    color: rgb(182, 2, 2);
+
+    color: rgb(171, 32, 32);
     margin: auto;
 }
 
@@ -22,8 +24,8 @@ h1{
 p{
     text-align: left;
     font-family: 'Nosifer', cursive;
-    font-size: 20px;
-    color: rgb(212, 169, 12);
+    font-size: 30px;
+    color: rgb(255, 201, 4);
     margin: auto;
     padding: 10px;
 }

@@ -3,8 +3,12 @@ const c = canvas.getContext('2d')
 
 const sscoreElement = document.querySelector('#scoreElement')
 
+/////////////// SPEED FOR PLAYER & KILLER /////////////////
+
 const veloConst = 2
-const killerVelo = 2
+const killerVelo = 4
+
+
 const hatchPosition = {
     x: 3,
     y: 7
@@ -24,6 +28,8 @@ const hatchPositionFour = {
 
 canvas.width = innerWidth
 canvas.height = innerHeight
+
+/////////////// CLASSES  /////////////////
 
 class Boundary {
     static width = 40
@@ -59,7 +65,7 @@ class Clues {
 class Hatch {
     constructor({position}) {
         this.position = position
-        this.radius = 20
+        this.radius = 1
         
     }
     draw() {
@@ -162,6 +168,10 @@ const keys = {
 let lastKey = ''
 let score = 0
 
+
+/////////////// MAP /////////////////
+
+
 const map = [
 
     ['-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-', '-',],
@@ -182,6 +192,7 @@ const map = [
     
 ]
 
+/////////////// MAPPING SWITCH /////////////////
 map.forEach((row, i) => {
     row.forEach((symbol, j) => {
         switch (symbol) {
@@ -216,6 +227,9 @@ map.forEach((row, i) => {
         }
     })
 })
+
+/////////////// CIRCLE AND RECTANGLE DETECTION /////////////////
+
 function circleCollidesWithRectangle({ circle, rectangle}) {
     const padding = Boundary.width /2 - circle.radius - 1
     return ( 
@@ -319,6 +333,9 @@ function animate() {
         }
     }
 
+/////////////// CLUES AND SCORE KEEPING /////////////////
+
+
     // touch clues here
     for (let i = clues.length - 1; 0 <= i; i--) {
         const clue = clues[i]
@@ -334,6 +351,9 @@ function animate() {
             clues.splice(i, 1)
             score += 1
             sscoreElement.innerHTML =score
+
+/////////////// SCORE WINNING CONDITION /////////////////
+
             
             if (score >= 5) {
 
@@ -486,6 +506,9 @@ function animate() {
                 collisions.push('down')
             }
         })
+        
+        
+/////////////// DETECT COLLISION /////////////////
 
         if (collisions.length > theKiller.prevCollisions.length)
         theKiller.prevCollisions = collisions
@@ -537,6 +560,9 @@ function animate() {
         // console.log(collisions)
     })
 }
+
+/////////////// SWITCH FOR THE PLAYER TO MOVE /////////////////
+
 
 animate()
 
