@@ -383,6 +383,7 @@ function animate() {
             < hatch.radius + player.radius
         ) {
             cancelAnimationFrame(animationId)
+            // title.innerHTML = `You Escaped!!!`
             console.log('You Escaped!')
         }
     }
@@ -415,6 +416,7 @@ function animate() {
             < theKiller.radius + player.radius
         ) {
             cancelAnimationFrame(animationId)
+            // title.innerHTML = `You Died...`
             console.log('You Died')
         }
 

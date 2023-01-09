@@ -5,18 +5,19 @@ body{
 
 header{
     color: rgb(100, 64, 128);
-    text-align: center;
+    text-align: left;
     font-size: 200px;
     font-family: 'Jolly Lodger', cursive;
 
 }
 
 h1{
-    text-align: center;
+    text-align: left;
     font-family: 'Nosifer', cursive;
     color: rgb(182, 2, 2);
     margin: auto;
 }
+
 
 p{
     text-align: left;
@@ -26,4 +27,3 @@ p{
     margin: auto;
     padding: 10px;
 }
-
